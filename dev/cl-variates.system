@@ -1,0 +1,82 @@
+;;; -*- Mode: Lisp; package: CL-USER; Syntax: Common-lisp; Base: 10 -*-
+
+#|
+
+$Id: cl-variates.system,v 1.9 2005/04/18 13:14:35 gwking Exp $
+
+Copyright 199?-2002 Experimental Knowledge Systems Lab, University of Massachusetts Amherst
+Professor Paul Cohen, Director
+
+Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, Louis Theran)
+
+|#
+
+(in-package common-lisp-user)
+
+;;; ---------------------------------------------------------------------------
+;;; EKSL Utilities
+;;; ---------------------------------------------------------------------------
+
+(eksl-define-logical-pathname-translations (cl-variates)
+  (source)
+  (utils (:back :back "utils" "dev"))
+  (eksl-math (:back :back "eksl-math" "dev"))
+  (lift  (:back :back "lift" "dev")))
+
+;;; ---------------------------------------------------------------------------
+
+(setf (eksl-system-source-file 'lift)
+      "cl-variates:lift;lift.system"
+      (eksl-system-source-file :eksl-utilities)
+      "cl-variates:utils;eksl-utilities.system"
+      (eksl-system-source-file :mcl-floating-point)
+      "cl-variates:utils;eksl-utilities.system"
+      (eksl-system-source-file :density-functions)
+      "cl-variates:eksl-math;eksl-math.system")
+
+
+;;; ---------------------------------------------------------------------------
+;;; system definition 
+;;; ---------------------------------------------------------------------------
+
+(define-eksl-system :cl-variates 
+  ("variates")
+  :base-dir "cl-variates:source;"
+  :bin-identifiers (:platform :vendor #+(and CLIM OFF) :gui)
+  :include-in-menu nil
+  :top-level nil
+  :depends-on (density-functions))
+
+;;; ---------------------------------------------------------------------------
+
+(define-eksl-module :variates-copying 
+  ("variates-copying")
+  :system cl-variates
+  :depends-on (copying))
+
+;;; ---------------------------------------------------------------------------
+
+(define-eksl-module :variates-utilities 
+  ("utilities-integration")
+  :system cl-variates
+  :depends-on (variates-copying))
+
+;;; ---------------------------------------------------------------------------
+
+(define-eksl-module :variates-fpc
+  (#+MCL
+   "mcl-variates")
+  :system cl-variates
+  :depends-on (cl-variates mcl-floating-point))
+
+;;; ---------------------------------------------------------------------------
+
+(define-eksl-module :variates-thread-safe 
+  ("variates-thread-safe")
+  :system cl-variates
+  :depends-on (meta-dynamic-classes))
+
+
+;;; ***************************************************************************
+;;; *                              End of File                                *
+;;; ***************************************************************************
