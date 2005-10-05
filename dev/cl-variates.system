@@ -27,12 +27,8 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 
 (setf (eksl-system-source-file 'lift)
       "cl-variates:lift;lift.system"
-      (eksl-system-source-file :eksl-utilities)
-      "cl-variates:utils;eksl-utilities.system"
       (eksl-system-source-file :mcl-floating-point)
-      "cl-variates:utils;eksl-utilities.system"
-      (eksl-system-source-file :density-functions)
-      "cl-variates:eksl-math;eksl-math.system")
+      "cl-variates:utils;eksl-utilities.system")
 
 
 ;;; ---------------------------------------------------------------------------
@@ -40,12 +36,13 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 ;;; ---------------------------------------------------------------------------
 
 (define-eksl-system :cl-variates 
-  ("variates")
+  ("package"
+   "variates")
   :base-dir "cl-variates:source;"
-  :bin-identifiers (:platform :vendor #+(and CLIM OFF) :gui)
+  :bin-identifiers (:platform :vendor)
   :include-in-menu nil
   :top-level nil
-  :depends-on (density-functions))
+  :depends-on (meta.math))
 
 ;;; ---------------------------------------------------------------------------
 

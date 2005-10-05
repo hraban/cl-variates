@@ -494,7 +494,7 @@ a given interval of time."
                (progn
                  (setf sq (sqrt (* 2.0 mean))
                        alxm (log mean)
-                       g (- (* mean alxm) (u:gamma-ln (1+ mean))))
+                       g (- (* mean alxm) (gamma-ln (1+ mean))))
                  
                  (do ((done-once-a? nil t))
                      ((and done-once-a? (<= (next-element generator) i)))
@@ -506,7 +506,7 @@ a given interval of time."
                            em (+ mean (* y sq))))
                    (setf em (float (floor em))
                          i (* 0.9 (1+ (* y y)) 
-                              (exp (- (* em alxm) (u:gamma-ln (1+ em)) g)))))))
+                              (exp (- (* em alxm) (gamma-ln (1+ em)) g)))))))
              em)))
     (if (typep test-mean 'double-float)
       (do-it test-mean)
@@ -551,7 +551,7 @@ a given interval of time."
             (setf last-mean mean
                   sq (sqrt (* 2.0 mean))
                   alxm (log mean)
-                  g (- (* mean alxm) (u:gamma-ln (1+ mean)))))
+                  g (- (* mean alxm) (gamma-ln (1+ mean)))))
           
           (do ((done-once-a? nil t))
               ((and done-once-a? (<= (next-element generator) i)))
@@ -562,7 +562,7 @@ a given interval of time."
                     em (+ mean (* y sq))))
             (setf em (float (floor em))
                   i (* 0.9 (1+ (* y y)) 
-                       (exp (- (* em alxm) (u:gamma-ln (1+ em)) g)))))))
+                       (exp (- (* em alxm) (gamma-ln (1+ em)) g)))))))
       em)))
 
 
@@ -576,7 +576,7 @@ a generator to all the functions in the variates package.")
 
 ;;; ---------------------------------------------------------------------------
 
-(u:deprecated
+(deprecated
   "Use shuffle-elements! instance"
   (defun shuffle-list! (list &key (generator *random-generator*) 
                              (times 0 times-supplied?))
