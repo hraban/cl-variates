@@ -42,7 +42,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
   :bin-identifiers (:platform :vendor)
   :include-in-menu nil
   :top-level nil
-  :depends-on (meta.math))
+  :depends-on (metabang.math))
 
 ;;; ---------------------------------------------------------------------------
 
