@@ -140,25 +140,7 @@ when the generator is created and when the seed is changed."))
                                                (class 'ran1-random-number-generator))
   "Return a new random number generator of class `class' using `seed' as 
 the initial seed." 
-  (make-generator class random-seed))
-
-;;; ---------------------------------------------------------------------------
-
-(defgeneric make-generator (class seed &key)
-  (:documentation "Make a random generator of class 'class' with initial seed 'seed'. Use additional arguments as needed."))
-
-;;; ---------------------------------------------------------------------------
-
-(defmethod make-generator ((class symbol) (seed number) &key)
-  (make-instance class :random-seed seed))
-
-;;; ---------------------------------------------------------------------------
-
-(defun make-random-number-generator (&optional (random-seed 42)
-                                               (class 'ran1-random-number-generator))
-  "Return a new random number generator of class `class' using `seed' as 
-the initial seed." 
-  (make-generator class random-seed))
+  (make-instance class :random-seed random-seed))
 
 ;;; ---------------------------------------------------------------------------
 

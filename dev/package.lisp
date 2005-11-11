@@ -2,7 +2,7 @@
 
 (defpackage "VARIATES"
   (:documentation "The variates package provides portable random number generation as well as numerous distributions.") 
-  (:use "COMMON-LISP" "METATILITIES")
+  (:use "COMMON-LISP" "METATILITIES" "CL-MATHSTAT")
   (:export
    #:basic-random-number-generator
    #:ran1-random-number-generator
@@ -24,7 +24,6 @@
    #:random-seed
    #:random-element
    #:make-random-number-generator
-   #:make-generator
    #:next-element
    #:*random-generator*
    #:rand
