@@ -15,10 +15,11 @@
   :licence "MIT Style License"
   :description "A generic container library for Common Lisp"
 
-  :components ((:file "package")
-               (:file "variates" 
-                      :depends-on ("package")))
-  :depends-on (cl-mathstat))
+  :components ((:module "dev"
+                        :components ((:file "package")
+                                     (:file "variates" 
+                                            :depends-on ("package")))))
+  :depends-on (cl-mathstats))
 
 
 ;;; ***************************************************************************
