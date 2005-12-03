@@ -46,6 +46,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 
 ;;; ---------------------------------------------------------------------------
 
+#+Ignore
 (define-eksl-module :variates-copying 
   ("variates-copying")
   :system cl-variates
@@ -53,6 +54,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 
 ;;; ---------------------------------------------------------------------------
 
+#+Ignore
 (define-eksl-module :variates-utilities 
   ("utilities-integration")
   :system cl-variates
@@ -60,6 +62,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 
 ;;; ---------------------------------------------------------------------------
 
+#+Ignore
 (define-eksl-module :variates-fpc
   (#+MCL
    "mcl-variates")
@@ -68,6 +71,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 
 ;;; ---------------------------------------------------------------------------
 
+#+Ignore
 (define-eksl-module :variates-thread-safe 
   ("variates-thread-safe")
   :system cl-variates

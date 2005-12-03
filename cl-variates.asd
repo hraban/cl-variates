@@ -8,9 +8,9 @@
 (defpackage "ASDF-CL-VARIATES" (:use #:cl #:asdf))
 (in-package "ASDF-CL-VARIATES")
 
-(defsystem :variates 
+(defsystem cl-variates 
   :version "0.8"
-  :author "Gary King <gwking@cs.umass.edu>"
+  :author "Gary King <gwking@metabang.com>"
   :maintainer "Gary Warren King <gwking@metabang.com>"
   :licence "MIT Style License"
   :description "A generic container library for Common Lisp"
