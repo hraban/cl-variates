@@ -14,28 +14,28 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 (in-package common-lisp-user)
 
 ;;; ---------------------------------------------------------------------------
-;;; EKSL Utilities
+;;; glu Utilities
 ;;; ---------------------------------------------------------------------------
 
-(eksl-define-logical-pathname-translations (cl-variates)
+(glu-define-logical-pathname-translations (cl-variates)
   (source)
   (utils (:back :back "utils" "dev"))
-  (eksl-math (:back :back "eksl-math" "dev"))
+  (glu-math (:back :back "glu-math" "dev"))
   (lift  (:back :back "lift" "dev")))
 
 ;;; ---------------------------------------------------------------------------
 
-(setf (eksl-system-source-file 'lift)
+(setf (glu-system-source-file 'lift)
       "cl-variates:lift;lift.system"
-      (eksl-system-source-file :mcl-floating-point)
-      "cl-variates:utils;eksl-utilities.system")
+      (glu-system-source-file :mcl-floating-point)
+      "cl-variates:utils;glu-utilities.system")
 
 
 ;;; ---------------------------------------------------------------------------
 ;;; system definition 
 ;;; ---------------------------------------------------------------------------
 
-(define-eksl-system :cl-variates 
+(define-glu-system :cl-variates 
   ("package"
    "variates")
   :base-dir "cl-variates:source;"
@@ -47,7 +47,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 ;;; ---------------------------------------------------------------------------
 
 #+Ignore
-(define-eksl-module :variates-copying 
+(define-glu-module :variates-copying 
   ("variates-copying")
   :system cl-variates
   :depends-on (copying))
@@ -55,7 +55,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 ;;; ---------------------------------------------------------------------------
 
 #+Ignore
-(define-eksl-module :variates-utilities 
+(define-glu-module :variates-utilities 
   ("utilities-integration")
   :system cl-variates
   :depends-on (variates-copying))
@@ -63,7 +63,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 ;;; ---------------------------------------------------------------------------
 
 #+Ignore
-(define-eksl-module :variates-fpc
+(define-glu-module :variates-fpc
   (#+MCL
    "mcl-variates")
   :system cl-variates
@@ -72,7 +72,7 @@ Author: Westy, et. al.  (most recent working over by Gary King, Brent Heeringa, 
 ;;; ---------------------------------------------------------------------------
 
 #+Ignore
-(define-eksl-module :variates-thread-safe 
+(define-glu-module :variates-thread-safe 
   ("variates-thread-safe")
   :system cl-variates
   :depends-on (meta-dynamic-classes))
