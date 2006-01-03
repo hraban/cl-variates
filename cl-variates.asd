@@ -13,7 +13,7 @@
   :author "Gary King <gwking@metabang.com>"
   :maintainer "Gary Warren King <gwking@metabang.com>"
   :licence "MIT Style License"
-  :description "A generic container library for Common Lisp"
+  :description "Portable Common Lisp Random Number Generation and more."
 
   :components ((:module "dev"
                         :components ((:file "package")
