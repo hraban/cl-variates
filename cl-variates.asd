@@ -18,7 +18,10 @@
   :components ((:module "dev"
                         :components ((:file "package")
                                      (:file "variates" 
-                                            :depends-on ("package")))))
+                                            :depends-on ("package"))))
+               (:module "website"
+                        :components ((:module "source"
+                                              :components ((:static-file "index.lml"))))))
   :depends-on (cl-mathstats))
 
 
