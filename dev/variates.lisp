@@ -2,16 +2,6 @@
 
 #| simple-header
 
-$Id: variates.lisp,v 1.19 2005/07/06 01:52:47 gwking Exp $
-
-Copyright 1992 - 2004 Experimental Knowledge Systems Lab, 
-University of Massachusetts Amherst MA, 01003-4610
-Professor Paul Cohen, Director
-
-Author: EKSL
-
-DISCUSSION
-
 |#
 
 #| TODO

@@ -1,13 +1,6 @@
 ;;;-*- Mode: Lisp; Package: VARIATES -*-
 
 #| simple-header
-
-$Id: mcl-variates.lisp,v 1.5 2004/08/04 17:01:07 gwking Exp $
-
-Copyright 1992 - 2004 Experimental Knowledge Systems Lab, 
-University of Massachusetts Amherst MA, 01003-4610
-Professor Paul Cohen, Director
-
 Author: Gary King
 
 DISCUSSION
@@ -16,6 +9,7 @@ Use MCL specific tricks to make a faster, less consy RNG
 
 Need to figure out how to make ftruncate and floor not cons or at least cons less 
 |#
+
 (in-package variates)
 
 (export '(ran1-fpc-random-number-generator))
