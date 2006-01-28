@@ -11,11 +11,10 @@
      "CL-Variates"
      "Happier than two clams in a pod")
     
-    ((:TABLE :CLASS "system-overview")
-     (:tr
-      (generate-system-sidebar)
-      
-      ((:TD :CLASS "system-description")
+    ((:DIV :CLASS "contents")
+     (generate-system-sidebar)
+     
+     ((:DIV :CLASS "system-description")
        (:H3 "What it is")
        (:P 
         "CL-Variates is a portable random number generator for Common Lisp.")
@@ -59,7 +58,7 @@ darcs get http://common-lisp.net/project/cl-containers/moptilities/darcs/moptili
         
         ((:TR :ALIGN "left" :VALIGN "top")
          ((:TD) "9 Nov 2005")
-         (:TD "Just getting things set up here."))))))
+         (:TD "Just getting things set up here.")))))
     
         
     ((:DIV :CLASS "footer")
