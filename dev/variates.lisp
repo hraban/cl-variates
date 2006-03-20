@@ -65,6 +65,7 @@ otherwise it will return a double-float."
 ;;; ---------------------------------------------------------------------------
 
 (defun random-element (generator sequence &key (start 0) (end (1- (length sequence))))
+  "Returns a element selected from sequence uniformly at random. Start and end can be supplied to select an element from a subsequence of sequence."
   (if (or (and (consp sequence) (null sequence))
           (zerop (length sequence)))
     (values nil nil)
@@ -95,6 +96,7 @@ with using 'mean' and 'standard-deviation'."
 ;;; ---------------------------------------------------------------------------
 
 (defun exponential-random (generator &optional (rate 1.0d0))
+    "Return a single element from the exponential distribution."
   (exponential-random* generator rate))
 
 ;;; ---------------------------------------------------------------------------
@@ -102,6 +104,7 @@ with using 'mean' and 'standard-deviation'."
 ;;; ---------------------------------------------------------------------------
 
 (defun poisson-random (generator mean)
+  "Returns a sample from the Poisson distribution with mean `mean` using the random number generator `generator`."
   (poisson-random* generator (coerce mean 'double-float)))
 
 
@@ -110,7 +113,7 @@ with using 'mean' and 'standard-deviation'."
 ;;; ---------------------------------------------------------------------------
 
 (defgeneric (setf random-seed) (random-seed random-number-generator)
-  (:documentation "Alters the seed of a pseudo random number generator."))
+  (:documentation "Sets the random seed of the generator. Two random generators with of the same class with the same seed will return the same sequence of random numbers."))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -179,7 +182,7 @@ shuffle and added safeguards. Returns a uniform random deviate between 0.0 and
 (defmethod initialize-instance :after ((object ran1-random-number-generator) &key)
   (with-slots (im ntab) object
     (setf (slot-value object 'am) (/ 1.0d0 im)
-          (slot-value object 'ndiv) (+ 1 (/ (- IM 1) NTAB))
+          (slot-value object 'ndiv) (+ 1 (/ (- im 1) ntab))
           (slot-value object 'rnmx) (- 1.0d0 long-float-negative-epsilon)))
   (initialize-random-number-generator object))
 
@@ -191,13 +194,13 @@ shuffle and added safeguards. Returns a uniform random deviate between 0.0 and
     (setf internal-seed (float (random-seed rng) 0d0))
     (setf internal-seed (mod (+ (* internal-seed 106) 1283) 6075)
           iy 0.0d0
-          iv   (make-array NTAB))
-    (do ((j (+ NTAB 7) (1- j)))
+          iv (make-array ntab))
+    (do ((j (+ ntab 7) (1- j)))
         ((< j 0))
-      (let ((k (ftruncate internal-seed IQ)))
-        (setf internal-seed (- (* IA (- internal-seed (* k IQ))) (* IR k))))
-      (if (< internal-seed 0) (incf internal-seed IM))
-      (if (< j NTAB) (setf (svref iv j) internal-seed)))
+      (let ((k (ftruncate internal-seed iq)))
+        (setf internal-seed (- (* ia (- internal-seed (* k iq))) (* ir k))))
+      (if (< internal-seed 0) (incf internal-seed im))
+      (if (< j ntab) (setf (svref iv j) internal-seed)))
     (setf iy (svref iv 0))))
 
 ;;; ---------------------------------------------------------------------------
@@ -206,15 +209,15 @@ shuffle and added safeguards. Returns a uniform random deviate between 0.0 and
   (declare (optimize speed))
   (with-slots (ia im am iq ir ndiv rnmx iv iy internal-seed) 
               rng
-    (let ((k (ftruncate internal-seed IQ)))
-      (setf internal-seed (- (* IA (- internal-seed (* k IQ))) (* IR k))))
+    (let ((k (ftruncate internal-seed iq)))
+      (setf internal-seed (- (* ia (- internal-seed (* k iq))) (* ir k))))
     (when (< internal-seed 0d0) (setf internal-seed (+ internal-seed im)))
-    (let ((j (floor iy NDIV)))
+    (let ((j (floor iy ndiv)))
       (setf iy (svref iv j))
       (setf (svref iv j) internal-seed))
     ;; convert to number between 0.0 and 1.0
-    (let ((temp (* AM iy)))
-      (if (> temp RNMX) RNMX temp))))
+    (let ((temp (* am iy)))
+      (if (> temp rnmx) rnmx temp))))
 
 
 ;;; ---------------------------------------------------------------------------
@@ -332,7 +335,8 @@ than ran1 because of the extra divide we need. It also conses about
     :initarg :random-number-generator-class))
   (:default-initargs
     :random-number-generator-class 'ran1-random-number-generator
-    :random-seed 42))
+    :random-seed 42)
+  (:documentation "Mixing this class into another class will make it appear to be a random number generator. The new class can be used as a generator in the various random number routines, has a random seed and so on. The mixin also provides two initargs: random-seed and random-number-generator-class. The former is self-explanitory. The latter specifies which random number generator class to use."))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -346,6 +350,11 @@ than ran1 because of the extra divide we need. It also conses about
 
 (defmethod next-element ((rng random-number-generation-mixin))
   (next-element (random-number-generator rng)))
+
+;;; ---------------------------------------------------------------------------
+
+(defgeneric random-seed (random-number-generator)
+  (:documentation "Returns the original random seed of the generator."))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -542,6 +551,7 @@ times is not specified, it will perform 2 times the container's size swaps."))
 ;;; ---------------------------------------------------------------------------
 
 (defun rand (n &optional (seed *random-generator*))
+  "Simple standin for Common Lisp random function. [[?? remove, just type more]]"
   (etypecase n
     (double-float (uniform-random seed 0.0d0 n))
     ((or integer single-float) (floor (uniform-random seed 0.0d0 (float n 1.0d0))))))
@@ -566,12 +576,14 @@ probably of heads for the coin is *probability-of-heads*."
 ;;; ---------------------------------------------------------------------------
 
 (defun binomial (n p)
+  "Flip a coin \(using flip\) `n` times with probability `p` and return the number of heads." 
   (loop for i from 1 to n 
         summing (flip p 1 0)))
 
 ;;; ---------------------------------------------------------------------------
 
 (defun geometric (p)
+  "Returns a sample from the geometric distribution with probability `p`. I.e., it returns the number of flips it takes until a possibly biased coin \(using flip\) comes up heads."
   (loop for i from 1
         until (flip p)
         finally (return i)))
@@ -581,6 +593,7 @@ probably of heads for the coin is *probability-of-heads*."
 ;;; ---------------------------------------------------------------------------
 
 (defun sample-sequence (seq &key key (pr *probability-of-heads*))
+  "Returns a sub-sequence of `seq` with probability `pr` that each element of `seq` will be included. If a key function is supplied, then it is applied to each included element. [[?? Remove, use select-sample and/or sample-elements instead.]]"
   (unless key 
     (setf key #'identity))
   (flet ((f (x)
@@ -617,6 +630,10 @@ is attributed to Robert Floyd by Jon Bentley in More Programming Pearls."
 ;;?? Gary King 2005-05-10: It appears I wrote this but WtF
 ;; why shuffle an already random selection?
 ;; who uses this? anyone? anywhere?
+;;?? I think this is trying to get around the fact that select-sample always returns
+;; a sample in order
+;; If nothing else, it needs a better name...
+#+Remove
 (defun map-unique-indexes (generator sample-size total-size fn &key (shuffle? nil))
   (loop for bit across (let ((bits (select-sample generator sample-size total-size)))
                          (if shuffle? (shuffle-elements! bits :times total-size) bits))

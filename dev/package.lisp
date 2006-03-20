@@ -1,9 +1,9 @@
 (in-package common-lisp-user)
 
-(defpackage "CL-VARIATES"
+(defpackage #:cl-variates
   (:documentation "The variates package provides portable random number generation as well as numerous distributions.") 
-  (:use "COMMON-LISP" "METATILITIES" "CL-MATHSTATS")
-  (:nicknames "VARIATES")
+  (:use #:common-lisp #:metatilities #:cl-mathstats)
+  (:nicknames #:variates)
   (:export
    #:basic-random-number-generator
    #:ran1-random-number-generator
