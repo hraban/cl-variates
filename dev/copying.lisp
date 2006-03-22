@@ -1,4 +1,4 @@
-;;;-*- Mode: Lisp; Package: VARIATES -*-
+;;;-*- Mode: Lisp; Package: cl-variates -*-
 
 #| simple-header
 
@@ -7,17 +7,17 @@ Author: Gary King
 DISCUSSION
 
 |#
-(in-package variates)
+(in-package cl-variates)
 
 ;;; ---------------------------------------------------------------------------
 
-(u:defcopy-methods basic-random-number-generator :set-all t)
+(metacopy:defcopy-methods basic-random-number-generator :set-all t)
 
-(u:defcopy-methods ran1-random-number-generator :copy-all t)
+(metacopy:defcopy-methods ran1-random-number-generator :copy-all t)
 
-(u:defcopy-methods ranq1-random-number-generator :copy-all t)
+(metacopy:defcopy-methods ranq1-random-number-generator :copy-all t)
 
-(u:defcopy-methods random-number-generation-mixin :copy-all t)
+(metacopy:defcopy-methods random-number-generation-mixin :copy-all t)
 
 
 ;;; ***************************************************************************

@@ -22,8 +22,12 @@
                (:module "website"
                         :components ((:module "source"
                                               :components ((:static-file "index.lml"))))))
-  :depends-on (cl-mathstats
-               ))
+  :depends-on (cl-mathstats))
+
+(asdf:defsystem-connection variates-and-metacopy
+  :requires (cl-variates metacopy)
+  :components ((:module "dev"
+                        :components ((:file "copying")))))
 
 
 ;;; ***************************************************************************
