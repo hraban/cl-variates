@@ -1,4 +1,4 @@
-(in-package common-lisp-user)
+(in-package #:common-lisp-user)
 
 (defpackage #:cl-variates
   (:documentation "The variates package provides portable random number generation as well as numerous distributions.") 

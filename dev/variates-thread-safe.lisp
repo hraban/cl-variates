@@ -7,7 +7,7 @@ Author: Gary King
 DISCUSSION
 
 |#
-(in-package variates)
+(in-package #:variates)
 
 (defclass thread-safe-random-number-generator ()
   ())

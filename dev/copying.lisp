@@ -7,7 +7,7 @@ Author: Gary King
 DISCUSSION
 
 |#
-(in-package cl-variates)
+(in-package #:cl-variates)
 
 ;;; ---------------------------------------------------------------------------
 

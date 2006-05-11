@@ -10,7 +10,7 @@ Use MCL specific tricks to make a faster, less consy RNG
 Need to figure out how to make ftruncate and floor not cons or at least cons less 
 |#
 
-(in-package variates)
+(in-package #:variates)
 
 (export '(ran1-fpc-random-number-generator))
 

@@ -7,7 +7,7 @@ Author: Gary King
 DISCUSSION
 
 |#
-(in-package u)
+(in-package #:u)
 
 (export-exported-symbols "VARIATES" "EKSL-UTILITIES")
 

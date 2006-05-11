@@ -1,4 +1,4 @@
-(in-package variates)
+(in-package #:variates)
 
 (lift:deftestsuite test-variates ()
   ((state (make-random-number-generator))))
