@@ -1,18 +1,9 @@
-;;;-*- Mode: Lisp; Package: VARIATES -*-
-
-#| simple-header
-
-|#
-
-#| TODO
-copy-self so that we can make next-element faster
-implement ran0, ran3, ran4, bitwise random numbers, etc.
-|#
+;;;-*- Mode: Lisp; Package: variates -*-
 
 (in-package :variates)
 
 ;;; ---------------------------------------------------------------------------
-;;; UNIFORM
+;;; uniform
 ;;; ---------------------------------------------------------------------------
 
 (defun uniform-random (generator &optional (min 0.0d0) (max 1.0d0))
@@ -21,50 +12,36 @@ and high (exclusive)."
   (let ((u (next-element generator)))
     (+ min (* u (- max min)))))
 
-;;; ---------------------------------------------------------------------------
-
 (defun integer-random (generator &optional (min 0) (max 1))
    "Returns a integer pseudo random number between low (inclusive) and high (inclusive)."
-   (values (floor (uniform-random generator (float min 1d0) (float (1+ max) 1d0)))))
+   (values (floor (uniform-random generator 
+				  (float min 1d0) (float (1+ max) 1d0)))))
 
-;;; ---------------------------------------------------------------------------
-  
 (defun random-range (generator low high)
-  "Returns a pseudo random number between low (inclusive) and high (exclusive or inclusive depending are arguments).
-If low and high are both integers (fixnums or bignums) this will return an integer, 
-otherwise it will return a double-float."
+  "Returns a pseudo random number between low (inclusive) and high (exclusive or inclusive depending are arguments). If low and high are both integers (fixnums or bignums) this will return an integer, otherwise it will return a double-float."
   (if (and (integerp low)
            (integerp high))
     (values (integer-random generator low high))
     (values (uniform-random generator low high))))
 
-;;; ---------------------------------------------------------------------------
-
 (defun random-range-inclusive (generator low high)
-  "Returns a pseudo random number between low and high (both inclusive).
-If low and high are both integers (fixnums or bignums) this will return an integer, 
-otherwise it will return a double-float."
+  "Returns a pseudo random number between low and high (both inclusive). If low and high are both integers (fixnums or bignums) this will return an integer, otherwise it will return a double-float."
   (if (and (integerp low)
            (integerp high))
     (values (floor (uniform-random generator low (1+ high))))
     (values (uniform-random generator low high))))
-
-;;; ---------------------------------------------------------------------------
 
 (defun random-boolean (generator &optional (probability 0.5d0))
   "Returns T with probability given. Defaults to 0.5d0."
   (when (plusp probability)
     (< (next-element generator) probability)))
 
-;;; ---------------------------------------------------------------------------
-
 (defun random-sample-with-range (generator size low high)
   (loop repeat size collect
         (random-range generator low high)))
 
-;;; ---------------------------------------------------------------------------
-
-(defun random-element (generator sequence &key (start 0) (end (1- (length sequence))))
+(defun random-element (generator sequence &key 
+		       (start 0) (end (1- (length sequence))))
   "Returns a element selected from sequence uniformly at random. Start and end can be supplied to select an element from a subsequence of sequence."
   (if (or (and (consp sequence) (null sequence))
           (zerop (length sequence)))
@@ -74,7 +51,8 @@ otherwise it will return a double-float."
      t)))
 
 #+Alt
-(defun random-element (generator sequence &key (start 0) (end (length sequence)))
+(defun random-element (generator sequence &key 
+		       (start 0) (end (length sequence)))
   (if (or (and (consp sequence) (null sequence))
           (zerop (length sequence)))
     (values nil nil)
@@ -145,16 +123,16 @@ the initial seed."
 
 ;;; ---------------------------------------------------------------------------
 
-(defmethod (setf random-seed) ((random-seed number) (rng basic-random-number-generator))
+(defmethod (setf random-seed) ((random-seed number)
+			       (rng basic-random-number-generator))
   (when (zerop random-seed)
     (error "Seed must never be zero."))
   (setf (slot-value rng 'random-seed) random-seed)
   (initialize-random-number-generator rng)
   (values (random-seed rng)))
 
-
 ;;; ---------------------------------------------------------------------------
-;;; ran1-random-number-generator (from numerical recipees)
+;;; ran1-random-number-generator (from numerical recipes)
 ;;; ---------------------------------------------------------------------------
 
 (defclass ran1-random-number-generator (basic-random-number-generator)
@@ -177,8 +155,6 @@ shuffle and added safeguards. Returns a uniform random deviate between 0.0 and
 1.0 \(exclusive of the endpoint values\). It has a period of 2^31 - 1 
 \(~ 2.1 x 10^9\)"))
 
-;;; ---------------------------------------------------------------------------
-
 (defmethod initialize-instance :after ((object ran1-random-number-generator) &key)
   (with-slots (im ntab) object
     (setf (slot-value object 'am) (/ 1.0d0 im)
@@ -186,9 +162,9 @@ shuffle and added safeguards. Returns a uniform random deviate between 0.0 and
           (slot-value object 'rnmx) (- 1.0d0 long-float-negative-epsilon)))
   (initialize-random-number-generator object))
 
-;;; ---------------------------------------------------------------------------
 
-(defmethod initialize-random-number-generator ((rng ran1-random-number-generator))
+(defmethod initialize-random-number-generator
+    ((rng ran1-random-number-generator))
   (with-slots (ia im am iq ir ntab ndiv rnmx iy iv internal-seed)  
               rng
     (setf internal-seed (float (random-seed rng) 0d0))
@@ -233,17 +209,13 @@ This is a quick and dirty generator which 'is about as good as any
 than ran1 because of the extra divide we need. It also conses about
 1.7 times less. I believe it has the same period as ran1."))
 
-;;; ---------------------------------------------------------------------------
-
-(defmethod initialize-instance :after ((object ranq1-random-number-generator) &key)
+(defmethod initialize-instance :after ((object ranq1-random-number-generator) 
+				       &key)
   (initialize-random-number-generator object))
 
-;;; ---------------------------------------------------------------------------
-
-(defmethod initialize-random-number-generator ((object ranq1-random-number-generator))
+(defmethod initialize-random-number-generator 
+    ((object ranq1-random-number-generator))
   (setf (slot-value object 'current-value) (random-seed object)))
-
-;;; ---------------------------------------------------------------------------
 
 (defmethod next-element ((rng ranq1-random-number-generator))
   (with-slots (current-value) rng
@@ -258,67 +230,6 @@ than ran1 because of the extra divide we need. It also conses about
   (delete-file "ccl:ranmt.dat")
   (variates::produce-random-bit-file 
    g "ccl:ranq1.dat" 1000000 25 #\linefeed))
-
-#| Various foolish notions <smile>
-
-;;; ---------------------------------------------------------------------------
-
-(defmethod next-element-of-kind ((rng ranq1-random-number-generator) 
-                                 (kind (eql :float)))
-  (/ (next-element-of-kind rng :integer) #.(float (expt 2 32))))
-
-;;; ---------------------------------------------------------------------------
-
-(defmethod next-element-of-kind ((rng ranq1-random-number-generator) 
-                                 (kind (eql :integer)))
-  (with-slots (current-value) rng
-    (setf current-value
-          (logand (+ (* current-value 1664525)
-                     1013904223)
-                  #xFFFFFFFF))
-    current-value))
-
-(defmethod next-element-of-kind ((rng ran1-random-number-generator) 
-                                 (kind (eql :float)))
-  (declare (inline next-element))
-  (next-element rng))
-
-;;; ---------------------------------------------------------------------------
-
-(defmethod next-element-of-kind ((rng ranq1-random-number-generator) 
-                                 (kind (eql :integer)))
-  (with-slots (current-value) rng
-    (setf current-value
-          (logand (+ (* current-value 1664525)
-                     1013904223)
-                  #xFFFFFFFF))
-    current-value))
-
-
-#+Test
-(timeit (:report t)
-      (let ((x 0)
-            (g (make-random-number-generator 42 'ranq1-random-number-generator)))
-        (loop repeat 10000 do
-              (setf x (next-element-of-kind g :integer)))
-        x))
-
-(timeit (:report t)
-      (let ((x 0)
-            (g (make-random-number-generator 42 'ran1-random-number-generator)))
-        (loop repeat 10000 do
-              (setf x (next-element-of-kind g :float)))
-        x))
-
-(timeit (:report t)
-      (let ((x 0)
-            (g (make-random-number-generator 42 'ran1-random-number-generator)))
-        (loop repeat 10000 do
-              (setf x (next-element g)))
-        x))
-
-|#
-
 
 ;;; ---------------------------------------------------------------------------
 ;;; random-number-generation-mixin
@@ -338,39 +249,31 @@ than ran1 because of the extra divide we need. It also conses about
     :random-seed 42)
   (:documentation "Mixing this class into another class will make it appear to be a random number generator. The new class can be used as a generator in the various random number routines, has a random seed and so on. The mixin also provides two initargs: random-seed and random-number-generator-class. The former is self-explanitory. The latter specifies which random number generator class to use."))
 
-;;; ---------------------------------------------------------------------------
-
 (defmethod initialize-instance :after ((object random-number-generation-mixin)
                                        &key random-seed)
   (setf (slot-value object 'random-number-generator)
         (make-instance (random-number-generator-class object) 
           :random-seed random-seed)))
 
-;;; ---------------------------------------------------------------------------
-
 (defmethod next-element ((rng random-number-generation-mixin))
   (next-element (random-number-generator rng)))
-
-;;; ---------------------------------------------------------------------------
 
 (defgeneric random-seed (random-number-generator)
   (:documentation "Returns the original random seed of the generator."))
 
-;;; ---------------------------------------------------------------------------
-
 (defmethod random-seed ((rng random-number-generation-mixin))
   (random-seed (random-number-generator rng)))
 
-;;; ---------------------------------------------------------------------------
-
-(defmethod (setf random-seed) ((random-seed number) (rng random-number-generation-mixin))
+(defmethod (setf random-seed) ((random-seed number)
+			       (rng random-number-generation-mixin))
   (setf (random-seed (random-number-generator rng)) random-seed))
 
 
-;;; ============================================================================
+
+;;; ---------------------------------------------------------------------------
 ;;; The following functions take generators as arguments.  This makes testing
-;;; easier.  Later we see wrapper functions that supply the generators.
-;;; ---------------------------------------------------------------------------   
+;;; easier.  
+;;; --------------------------------------------------------------------------- 
 
 (defun normal-random* (generator mean standard-deviation)
   "Gets a single value sampled from the normal distribution with mean `mean' and
@@ -379,8 +282,10 @@ Recipes in C."
   ;; Note that this implementation throws away half of the Gaussian variates.
   ;; This is because we would have to store the other variate with the
   ;; generator, and that seems too cumbersome.
-  (do* ((v1 (1- (* 2 (next-element generator))) (1- (* 2 (next-element generator))))
-	(v2 (1- (* 2 (next-element generator))) (1- (* 2 (next-element generator))))
+  (do* ((v1 (1- (* 2 (next-element generator))) 
+	    (1- (* 2 (next-element generator))))
+	(v2 (1- (* 2 (next-element generator))) 
+	    (1- (* 2 (next-element generator))))
 	(r (+ (* v1 v1) (* v2 v2)) (+ (* v1 v1) (* v2 v2))))
        ;; if (v1,v2) lie in the unit circle, return
        ;; v1*sqrt(-2.0*log(r)/r) and store v2*sqrt(-2.0*log(r)/r)
@@ -391,8 +296,6 @@ Recipes in C."
 	      (* v2 (sqrt (* -2.0 (/ (log r) r)))))
 	(+ mean (* standard-deviation
 		   (* v1 (sqrt (* -2.0 (/ (log r) r)))))))))
-
-;;; ---------------------------------------------------------------------------
 
 (defun exponential-random* (generator rate)
   (/ (- (log (next-element generator))) rate))
@@ -411,17 +314,16 @@ deviate drawn from a Poisson distribution of mean test-mean using the
 generator as a source of uniform random deviates. The Poisson distribution
 gives the probability of a the number m Poisson random processes ocuring in
 a given interval of time."
-  (declare (optimize (speed 3) (space 1) (safety 0) (debug 0)) 
-           (dynamic-extent test-mean))
+  (declare (optimize (speed 3) (space 1) (safety 0) (debug 0)))
   (flet ((do-it (mean)
+	   (declare (type double-float mean))
            (let ((em 0.0d0)
                  (i 0.0d0)
                  (y 0.0d0)
                  (sq 0.0d0)
                  (alxm 0.0d0)
                  (g 0.0d0))
-             (declare (type double-float em i y sq alxm g)
-                      (dynamic-extent i y sq alxm g))
+             (declare (type double-float em i y sq alxm g))
              (if (< mean 12.0d0)
                ;; use direct method
                (progn
@@ -453,60 +355,6 @@ a given interval of time."
       (do-it test-mean)
       (do-it (coerce test-mean 'double-float)))))
 
-#+Old
-;;; This is a straight-forward port of the code in Numerical Recipes in C, 
-;;; chapter 7. It's not that fast...
-;;;
-;; we cache a few things in case the mean doesn't change between calls
-(let ((last-mean -1.0)
-      (sq 1.0)
-      (alxm 1.0)
-      (g 1.0))
-  (declare (type double-float last-mean sq alxm g))
-  (defun poisson-random* (generator mean)
-    (declare (optimize (speed 3) (space 1) (safety 0) (debug 0)) 
-             (type double-float mean)
-             (dynamic-extent mean))
-    (let ((em 0.0)
-          (i 0.0)
-          (y 0.0))
-      (declare (type double-float em i y)
-               (dynamic-extent i y))
-      
-      (if (< mean 12.0)
-        ;; use direct method
-        (progn
-          (when (/= mean last-mean)       ; when mean is new, compute exponential
-            (setf last-mean mean
-                  g (exp (- mean))))
-          
-          (setf em -1.0
-                i 1.0)
-          (do ((done-once? nil t))
-              ((and done-once? (<= i g)))
-            (incf em)
-            (setf i (* i (next-element generator)))))
-        ;; else, use rejection method
-        (progn
-          (when (/= mean last-mean)
-            (setf last-mean mean
-                  sq (sqrt (* 2.0 mean))
-                  alxm (log mean)
-                  g (- (* mean alxm) (gamma-ln (1+ mean)))))
-          
-          (do ((done-once-a? nil t))
-              ((and done-once-a? (<= (next-element generator) i)))
-            (do ((done-once-b? nil t))
-                ((and done-once-b? (>= em 0.0)))
-              ;(spy y em g)
-              (setf y (tan (* (next-element generator) (coerce pi 'single-float)))
-                    em (+ mean (* y sq))))
-            (setf em (float (floor em))
-                  i (* 0.9 (1+ (* y y)) 
-                       (exp (- (* em alxm) (gamma-ln (1+ em)) g)))))))
-      em)))
-
-
 ;; ---------------------------------------------------------------------------
 ;;; some utilities
 ;;; ---------------------------------------------------------------------------
@@ -515,34 +363,18 @@ a given interval of time."
   "This variable takes the place of CL's *random-state*. It can be supplied as
 a generator to all the functions in the variates package.")
 
-;;; ---------------------------------------------------------------------------
-
-(deprecated
-  "Use shuffle-elements! instance"
-  (defun shuffle-list! (list &key (generator *random-generator*) 
-                             (times 0 times-supplied?))
-    "Destructively rearrange the elements of a list by performing 'times' swaps. If
-times is not specified, it will perform 4 times the sequence's length swaps."
-    (let ((size (1- (length list))))
-      (dotimes (i (if times-supplied? times (* 4 size)))
-        (rotatef (elt list (integer-random generator 0 size))
-                 (elt list (integer-random generator 0 size)))))
-    list))
-
 (defgeneric shuffle-elements! (container &key generator times)
   (:documentation 
-    "Destructively rearrange the elements of a container by performing 'times' swaps. If
-times is not specified, it will perform 2 times the container's size swaps."))
+    "Destructively rearrange the elements of a container by performing 'times' swaps. If times is not specified, it will perform 2 times the container's size swaps."))
 
-;;; ---------------------------------------------------------------------------
-
-(defmethod shuffle-elements! ((sequence sequence) &key (generator *random-generator*) 
+(defmethod shuffle-elements! ((sequence sequence) &key 
+			      (generator *random-generator*) 
                               (times 0 times-supplied?))
-    (let ((size (1- (length sequence))))
-      (dotimes (i (if times-supplied? times (* 2 size)))
-        (rotatef (elt sequence (integer-random generator 0 size))
-                 (elt sequence (integer-random generator 0 size)))))
-    sequence)
+  (let ((size (1- (length sequence))))
+    (dotimes (i (if times-supplied? times (* 2 size)))
+      (rotatef (elt sequence (integer-random generator 0 size))
+	       (elt sequence (integer-random generator 0 size)))))
+  sequence)
 
 ;;; ---------------------------------------------------------------------------
 ;;; cl:random clone
@@ -551,8 +383,10 @@ times is not specified, it will perform 2 times the container's size swaps."))
 (defun rand (n &optional (seed *random-generator*))
   "Simple standin for Common Lisp random function. [[?? remove, just type more]]"
   (etypecase n
-    (double-float (uniform-random seed 0.0d0 n))
-    ((or integer single-float) (floor (uniform-random seed 0.0d0 (float n 1.0d0))))))
+    (double-float
+     (uniform-random seed 0.0d0 n))
+    ((or integer single-float) 
+     (floor (uniform-random seed 0.0d0 (float n 1.0d0))))))
 
 ;;; ---------------------------------------------------------------------------
 ;;; coin flips
@@ -561,8 +395,6 @@ times is not specified, it will perform 2 times the container's size swaps."))
 (defparameter *probability-of-heads* 0.5d0
   "The default probably used in calls to flip \(and therefore in calls to
 binomial and geometric\).")
-
-;;; ---------------------------------------------------------------------------
 
 (defun flip (&optional (pr *probability-of-heads*) (heads t) (tails nil))
   "Flip a pseudo-random coin and return true if it comes up heads. The default
@@ -577,8 +409,6 @@ probably of heads for the coin is *probability-of-heads*."
   "Flip a coin \(using flip\) `n` times with probability `p` and return the number of heads." 
   (loop for i from 1 to n 
         summing (flip p 1 0)))
-
-;;; ---------------------------------------------------------------------------
 
 (defun geometric (p)
   "Returns a sample from the geometric distribution with probability `p`. I.e., it returns the number of flips it takes until a possibly biased coin \(using flip\) comes up heads."
@@ -623,22 +453,6 @@ is attributed to Robert Floyd by Jon Bentley in More Programming Pearls."
       (sample-aux sample-size total-size)
       set)))
 
-;;; ---------------------------------------------------------------------------
-
-;;?? Gary King 2005-05-10: It appears I wrote this but WtF
-;; why shuffle an already random selection?
-;; who uses this? anyone? anywhere?
-;;?? I think this is trying to get around the fact that select-sample always returns
-;; a sample in order
-;; If nothing else, it needs a better name...
-#+Remove
-(defun map-unique-indexes (generator sample-size total-size fn &key (shuffle? nil))
-  (loop for bit across (let ((bits (select-sample generator sample-size total-size)))
-                         (if shuffle? (shuffle-elements! bits :times total-size) bits))
-        for index = 0 then (1+ index) 
-        unless (zerop bit) do
-        (funcall fn index)))
-
 
 ;;; ---------------------------------------------------------------------------
 ;;; misc
@@ -674,7 +488,3 @@ is attributed to Robert Floyd by Jon Bentley in More Programming Pearls."
 (graph-random-numbers 1000 20 'poisson-random 12.5)
 
 |#
-
-;;; ***************************************************************************
-;;; *                              End of File                                *
-;;; ***************************************************************************
