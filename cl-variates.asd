@@ -15,21 +15,20 @@
   :licence "MIT Style License"
   :description "Portable Common Lisp Random Number Generation and more."
 
-  :components ((:module "dev"
-                        :components ((:file "package")
-                                     (:file "variates" 
-                                            :depends-on ("package"))))
-               (:module "website"
-                        :components ((:module "source"
-                                              :components ((:static-file "index.lml"))))))
-  :depends-on (cl-mathstats))
+  :components ((:module 
+		"dev"
+		:components ((:file "package")
+			     (:file "variates" 
+				    :depends-on ("package"))))
+               (:module 
+		"website"
+		:components ((:module 
+			      "source"
+			      :components ((:static-file "index.lml"))))))
+  :depends-on (:cl-mathstats))
 
 (asdf:defsystem-connection variates-and-metacopy
   :requires (cl-variates metacopy)
   :components ((:module "dev"
                         :components ((:file "copying")))))
 
-
-;;; ***************************************************************************
-;;; *                              End of File                                *
-;;; ***************************************************************************
