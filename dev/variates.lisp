@@ -436,7 +436,8 @@ probably of heads for the coin is *probability-of-heads*."
 bits set to 1. The one bits are selected uniformly at random. The algorithm
 is attributed to Robert Floyd by Jon Bentley in More Programming Pearls." 
   (assert (<= sample-size total-size))
-  (let ((set (make-array total-size :element-type 'bit)))
+  (let ((set (make-array total-size :element-type 'bit
+			 :initial-element 0)))
     (labels ((in-set-p (x)
                (= (sbit set x) 1))
              (put-in-set (x)
