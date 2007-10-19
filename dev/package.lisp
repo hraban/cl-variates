@@ -2,7 +2,7 @@
 
 (defpackage #:cl-variates
   (:documentation "The variates package provides portable random number generation as well as numerous distributions.") 
-  (:use #:common-lisp #:metatilities #:cl-mathstats)
+  (:use #:common-lisp)
   (:nicknames #:variates)
   (:export
    #:basic-random-number-generator
@@ -33,7 +33,6 @@
    #:binomial
    #:geometric
    #:sample-sequence
-   #:shuffle-list!
    #:select-sample
    #:map-unique-indexes
    #:shuffle-elements!))
