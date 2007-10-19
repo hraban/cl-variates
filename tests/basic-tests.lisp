@@ -1,14 +1,14 @@
-(in-package #:variates)
+(in-package #:cl-variates-test)
 
-(lift:deftestsuite test-variates ()
+(deftestsuite cl-variates-test ()
   ((state (make-random-number-generator))))
 
-(lift:addtest (test-variates) 
+(addtest (cl-variates-test) 
   setting-random-seed
   (setf (random-seed state) 44)
-  (lift:ensure-same (random-seed state) 44))
+  (ensure-same (random-seed state) 44))
 
-(lift:addtest (test-variates)
+(addtest (cl-variates-test)
   random-seed
   (let (a b)
     (setf (random-seed state) 10
@@ -17,37 +17,7 @@
           (random-seed state) 10
           b (loop for i from 1 to 10 collect
                   (random-range state 0 10)))
-    (lift:ensure-same a b))))
-
-(lift:addtest (test-variates)
-  copying-generators
-  (let (r1 r2 r3 c1 c2 c3)
-    ;; the copying needs to update the number of times called. 
-    ;; if it does, then each of r1, r2 and r3 will generate 
-    ;; (with very high probability) different series.
-    (setf r1 (make-random-number-generator 29.3)
-          c1 (loop repeat 20 collect (integer-random r1 0 10))
-          r2 (copy-top-level r1)
-          c2 (loop repeat 20 collect (integer-random r2 0 10))
-          r3 (copy-top-level r2)
-          c3 (loop repeat 20 collect (integer-random r3 0 10)))
-    (lift:ensure (not (equal c1 c2)))
-    (lift:ensure (not (equal c1 c3)))
-    (lift:ensure (not (equal c2 c3)))))
-
-;;; ---------------------------------------------------------------------------
-
-(lift:addtest (test-variates)
-  copying-generators-2
-  (bind ((count 10) f)
-    (loop repeat count do (uniform-random state))
-    (setf f (copy-top-level state))
-    ;; These should be the same
-    (lift:ensure (= (uniform-random state) (uniform-random f)))
-    (lift:ensure (= (uniform-random state) (uniform-random f)))
-    (lift:ensure (= (uniform-random state) (uniform-random f)))))
-
-;;; ---------------------------------------------------------------------------
+    (ensure-same a b)))
 
 (defun test-uniform-random* ()
   ;; Already tested the uniform generator, so just test the range stuff.
@@ -57,29 +27,23 @@
 	  maximize v into max
 	  finally (return (values min max)))))
 
-;;; ---------------------------------------------------------------------------
-
-(lift:addtest (test-variates)
+(addtest (cl-variates-test)
   uniform-random-star
-  (lift:ensure-same
+  (ensure-same
    (test-uniform-random*)
    (values -4.998793695121442 4.988718372764399)))
 
-;;; ---------------------------------------------------------------------------
-
-(lift:addtest normal-random-star
+(addtest normal-random-star
   (let ((g (make-random-number-generator 1)))
-    (lift:ensure-same
-     (normal-random* g 0.0 1.0)
+    (ensure-same
+     (cl-variates::normal-random* g 0.0 1.0)
      0.9142027287650025)))
 
-;;; ---------------------------------------------------------------------------
-
-(lift:addtest (test-variates)
+(addtest (cl-variates-test)
   test-select-sample
-  (lift:ensure-same #*11111 (select-sample *random-generator* 5 5))
-  (lift:ensure-same #*00000 (select-sample *random-generator* 0 5))
-  (lift:ensure-same 1 (count 1 (select-sample *random-generator* 1 100))))
+  (ensure-same #*11111 (select-sample *random-generator* 5 5))
+  (ensure-same #*00000 (select-sample *random-generator* 0 5))
+  (ensure-same 1 (count 1 (select-sample *random-generator* 1 100))))
 
 #+test
 (defun test-normal-random* (&optional (seed 3))
@@ -150,37 +114,31 @@
 ;;; select-sample
 ;;; ---------------------------------------------------------------------------
 
-(lift:deftestsuite test-select-sample (test-variates)
+(deftestsuite test-select-sample (cl-variates-test)
   ())
 
-;;; ---------------------------------------------------------------------------
-
-(lift:addtest (test-select-sample) 
+(addtest (test-select-sample) 
   test-number-of-bits-1
   (let* ((sample-count 200)
          (sample-size 12)
          (total-size 20)
          (samples (collect-select-sample-samples 
                    state sample-count sample-size total-size)))
-    (lift:ensure-same (reduce #'+ (summarize-select-sample-counts samples))
+    (ensure-same (reduce #'+ (summarize-select-sample-counts samples))
                  (* sample-count sample-size))))
 
-;;; ---------------------------------------------------------------------------
-
-(lift:addtest (test-select-sample) 
+(addtest (test-select-sample) 
   test-number-of-bits-2
   (let* ((sample-count 200)
          (sample-size 2)
          (total-size 7)
          (samples (collect-select-sample-samples 
                    state sample-count sample-size total-size)))
-    (lift:ensure-same (reduce #'+ (summarize-select-sample-counts samples))
+    (ensure-same (reduce #'+ (summarize-select-sample-counts samples))
                  (* sample-count sample-size))))
 
-;;; ---------------------------------------------------------------------------
-
 #+Ignore
-(lift:addtest (test-select-sample) 
+(addtest (test-select-sample) 
   test-equal-bits
   (let* ((sample-count 2000)
          (sample-size 2)
@@ -192,11 +150,9 @@
          (expected (float (/ (* sample-count sample-size) total-size))))
     (loop for bit = 0 then (1+ bit)
           for sum in summaries do
-          (lift:ensure (<= (- expected (* 2 std)) sum (+ expected (* 2 std)))
+          (ensure (<= (- expected (* 2 std)) sum (+ expected (* 2 std)))
                        :report "Position ~A had ~D ones, which is not between ~,2F and ~,2F" 
                        :args (bit sum (- expected (* 2 std)) (+ expected (* 2 std)))))))
-
-;;; ---------------------------------------------------------------------------
 
 (defun mean (list)
   (let ((sum 0) (count 0))
@@ -204,8 +160,6 @@
           (incf sum x)
           (incf count))
     (float (/ sum count))))
-
-;;; ---------------------------------------------------------------------------
 
 (defun variance (list)
   (let ((m (mean list))
@@ -215,16 +169,11 @@
           (let ((diff (- x m)))
             (incf sum (* diff diff))
             (incf count)))
-    
     (float (/ sum count))))
-
-;;; ---------------------------------------------------------------------------
 
 (defun collect-select-sample-samples (state count sample-size total-size)
   (loop repeat count collect 
         (variates:select-sample state sample-size total-size)))
-
-;;; ---------------------------------------------------------------------------
 
 (defun summarize-select-sample-counts (bvs)
   (flet ((count-bits (bvs pos)
@@ -236,21 +185,22 @@
 ;;; integer-random
 ;;; ---------------------------------------------------------------------------
 
-(lift:deftestsuite test-integer-random (test-variates)
+(deftestsuite test-integer-random (cl-variates-test)
   ())
 
-(lift:addtest (test-integer-random)
+(addtest (test-integer-random)
   test-1
-  (lift:ensure-same (integer-random state 0 0) 0))
+  (ensure-same (integer-random state 0 0) 0))
 
-(lift:addtest (test-integer-random)
-  test-1
+(addtest (test-integer-random)
+  test-2
   (let* ((min -2)
          (max 2)
          (lots (loop repeat 100 collect (integer-random state min max))))
     (loop for i from min to max do
-          (lift:ensure (member i lots)
-                       :report "Integer-random did not generate ~D" :args (i)))))
+          (ensure (member i lots)
+                       :report "Integer-random did not generate ~D" 
+		       :arguments (i)))))
 
 
 #|
@@ -283,37 +233,5 @@
 #+Test
 (stop-multi-process-rng)
 
-#|
-[billy-pilgrim:~/Repository/ijara-csif] gwking% find . \( -name "*.lisp" -and -exec grep -qi "make-random-number-generator" '{}' \; \) -print
 
-### Ijara-csif
-user-home:repository;ijara-csif;bugworld;dev;threat-defend-relations;pauls-debug-low-mem.lisp
-user-home:repository;ijara-csif;bugworld;dev;threat-defend-relations;pauls-debug.lisp
-user-home:repository;ijara-csif;eksl-math;dev/mersenne-twister.lisp
-user-home:repository:ijara-csif:lbd/dev/cards.lisp
-user-home:repository:ijara-csif:lbd/dev/lbd-game-engine.lisp
-user-home:repository:ijara-csif:lbd/forward-backward/forward-backward-algorithm.lisp
-user-home:repository:ijara-csif:opengl/opengl-tests/stencil-test.lisp
-user-home:repository:ijara-csif:ttt/dev/experiments.lisp
-user-home:repository:ijara-csif:utils/dev/geom/shapes.lisp
-user-home:repository:ijara-csif:utils/dev/mersenne-twister.lisp
-user-home:repository:ijara-csif:utils/dev/test-variates.lisp
-user-home:repository:ijara-csif:variates/dev/mcl-variates.lisp
-user-home:repository:ijara-csif:variates/dev/test-variates.lisp
-user-home:repository:ijara-csif:variates/dev/variates.lisp
-
-### CtF
-user-home:repository:ijara-csif:afs/dev/afs-utils/package.lisp
-user-home:repository:ijara-csif:afs/dev/domain/sensor-report.lisp
-user-home:repository:ijara-csif:afs/dev/hpkb99/coa-parser-output.lisp
-user-home:repository:ijara-csif:afs/dev/network/protocol.lisp
-user-home:repository:ijara-csif:afs/dev/scenarios/basic-sidekick-scenario.lisp
-user-home:repository:ijara-csif:OpenGL/opengl-tests/stencil-test.lisp
-user-home:repository:ijara-csif:utils/dev/geom/shapes.lisp
-user-home:repository:ijara-csif:utils/dev/mersenne-twister.lisp
-user-home:repository:ijara-csif:utils/dev/test-variates.lisp
-user-home:repository:ijara-csif:variates/dev/mcl-variates.lisp
-user-home:repository:ijara-csif:variates/dev/test-variates.lisp
-user-home:repository:ijara-csif:variates/dev/variates.lisp
-|#
 |#
