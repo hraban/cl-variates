@@ -42,7 +42,7 @@ instructions."))
   (values nil))
 
 #+asdf-system-connections
-(asdf:defsystem-connection variates-and-metacopy
+(asdf:defsystem-connection "cl-variates/with-metacopy"
   :requires (cl-variates metacopy)
   :components ((:module "dev"
                         :components ((:file "copying")))))
